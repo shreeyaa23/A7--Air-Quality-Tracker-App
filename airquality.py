@@ -16,7 +16,10 @@ def get_air_quality_data(city):
         return None
 
 # Streamlit app
-st.title("Air Quality Tracker for Indian Cities")
+st.set_page_config(page_title="Air Quality Tracker", page_icon=":earth_asia:", layout="wide")
+
+st.sidebar.title("Air Quality Tracker")
+st.sidebar.markdown("## Select a city to see its air quality details:")
 
 cities = [
     "Mumbai", "Chennai", "Delhi", "Hyderabad", "Bangalore", "Kolkata", 
@@ -24,37 +27,37 @@ cities = [
     "Visakhapatnam", "Bhopal", "Patna", "Ludhiana", "Agra", "Nashik", 
     "Faridabad", "Meerut"
 ]
-city = st.selectbox("Select a city:", cities)
+city = st.sidebar.selectbox("Select a city:", cities)
 
 if city:
     data = get_air_quality_data(city)
     
     if data:
-        st.header(f"Current Air Quality in {city}")
+        st.title(f"Air Quality in {city}")
+        
+        col1, col2 = st.columns(2)
+        
+        with col1:
+            st.metric(label="Air Quality Index (AQI)", value=data['aqi'])
+            
+        with col2:
+            st.markdown("### Current Pollutants")
+            pollutants = data['iaqi']
+            pollutants_df = pd.DataFrame(pollutants).T
+            pollutants_df.columns = ['Concentration']
+            st.dataframe(pollutants_df)
 
-        # Display current AQI
-        st.metric(label="Air Quality Index (AQI)", value=data['aqi'])
+            fig = px.bar(
+                pollutants_df, 
+                x=pollutants_df.index, 
+                y='Concentration', 
+                labels={'index': 'Pollutant', 'Concentration': 'Concentration'},
+                color='Concentration',
+                color_continuous_scale=px.colors.sequential.Plasma
+            )
+            st.plotly_chart(fig)
 
-        # Display additional information
-        st.subheader("Current Pollutants")
-        pollutants = data['iaqi']
-        pollutants_df = pd.DataFrame(pollutants).T
-        pollutants_df.columns = ['Concentration']
-        st.dataframe(pollutants_df)
-
-        # Plotting pollutant data
-        fig = px.bar(
-            pollutants_df, 
-            x=pollutants_df.index, 
-            y='Concentration', 
-            labels={'index': 'Pollutant', 'Concentration': 'Concentration'},
-            color='Concentration',
-            color_continuous_scale=px.colors.sequential.Plasma
-        )
-        st.plotly_chart(fig)
-
-        # More detailed pollutant information
-        st.subheader("Detailed Pollutant Information")
+        st.markdown("### Detailed Pollutant Information")
         pollutants_details = {
             'pm25': 'PM2.5 (Fine Particulate Matter)',
             'pm10': 'PM10 (Respirable Particulate Matter)',
@@ -63,9 +66,13 @@ if city:
             'o3': 'O3 (Ozone)',
             'co': 'CO (Carbon Monoxide)'
         }
-        for pollutant, description in pollutants_details.items():
-            if pollutant in pollutants:
-                st.write(f"{description}: {pollutants[pollutant]['v']}")
+        pollutant_expander = st.expander("Click to see detailed pollutant information")
+        with pollutant_expander:
+            for pollutant, description in pollutants_details.items():
+                if pollutant in pollutants:
+                    st.write(f"{description}: {pollutants[pollutant]['v']}")
 
-st.write("Note: Data fetched from World Air Quality Index project.")
+st.sidebar.markdown("## Note:")
+st.sidebar.markdown("Data fetched from World Air Quality Index project.")
+st.sidebar.markdown("[Learn more about AQI](https://aqicn.org/faq/)")
 
