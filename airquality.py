@@ -35,27 +35,23 @@ if city:
     if data:
         st.title(f"Air Quality in {city}")
         
-        col1, col2 = st.columns(2)
+        st.metric(label="Air Quality Index (AQI)", value=data['aqi'])
         
-        with col1:
-            st.metric(label="Air Quality Index (AQI)", value=data['aqi'])
-            
-        with col2:
-            st.markdown("### Current Pollutants")
-            pollutants = data['iaqi']
-            pollutants_df = pd.DataFrame(pollutants).T
-            pollutants_df.columns = ['Concentration']
-            st.dataframe(pollutants_df)
+        st.markdown("### Current Pollutants")
+        pollutants = data['iaqi']
+        pollutants_df = pd.DataFrame(pollutants).T
+        pollutants_df.columns = ['Concentration']
+        st.dataframe(pollutants_df)
 
-            fig = px.bar(
-                pollutants_df, 
-                x=pollutants_df.index, 
-                y='Concentration', 
-                labels={'index': 'Pollutant', 'Concentration': 'Concentration'},
-                color='Concentration',
-                color_continuous_scale=px.colors.sequential.Plasma
-            )
-            st.plotly_chart(fig)
+        fig = px.bar(
+            pollutants_df, 
+            x=pollutants_df.index, 
+            y='Concentration', 
+            labels={'index': 'Pollutant', 'Concentration': 'Concentration'},
+            color='Concentration',
+            color_continuous_scale=px.colors.sequential.Plasma
+        )
+        st.plotly_chart(fig)
 
         st.markdown("### Detailed Pollutant Information")
         pollutants_details = {
