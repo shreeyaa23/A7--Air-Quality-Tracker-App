@@ -2,24 +2,7 @@ import streamlit as st
 import requests
 import pandas as pd
 import plotly.express as px
-
-# Set page configuration
-st.set_page_config(page_title="Air Quality Tracker", page_icon=":earth_asia:", layout="wide")
-
-# Custom CSS to center elements
-st.markdown(
-    """
-    <style>
-    .centered {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        flex-direction: column;
-    }
-    </style>
-    """,
-    unsafe_allow_html=True
-)
+import plotly.graph_objects as go
 
 # Function to get current air quality data
 def get_air_quality_data(city):
@@ -33,6 +16,8 @@ def get_air_quality_data(city):
         return None
 
 # Streamlit app
+st.set_page_config(page_title="Air Quality Tracker", page_icon=":earth_asia:", layout="wide")
+
 st.sidebar.title("Air Quality Tracker")
 st.sidebar.markdown("## Select a city to see its air quality details:")
 
@@ -48,7 +33,7 @@ if city:
     data = get_air_quality_data(city)
     
     if data:
-        st.markdown(f"<div class='centered'><h1>Air Quality in {city}</h1></div>", unsafe_allow_html=True)
+        st.title(f"Air Quality in {city}")
         
         col1, col2 = st.columns(2)
         
@@ -56,13 +41,11 @@ if city:
             st.metric(label="Air Quality Index (AQI)", value=data['aqi'])
             
         with col2:
-            st.markdown(f"<div class='centered'><h3>Current Pollutants</h3></div>", unsafe_allow_html=True)
+            st.markdown("### Current Pollutants")
             pollutants = data['iaqi']
             pollutants_df = pd.DataFrame(pollutants).T
             pollutants_df.columns = ['Concentration']
-            st.markdown("<div class='centered'>")
             st.dataframe(pollutants_df)
-            st.markdown("</div>")
 
             fig = px.bar(
                 pollutants_df, 
@@ -72,11 +55,9 @@ if city:
                 color='Concentration',
                 color_continuous_scale=px.colors.sequential.Plasma
             )
-            st.markdown("<div class='centered'>")
-            st.plotly_chart(fig, use_container_width=True)
-            st.markdown("</div>")
+            st.plotly_chart(fig)
 
-        st.markdown(f"<div class='centered'><h3>Detailed Pollutant Information</h3></div>", unsafe_allow_html=True)
+        st.markdown("### Detailed Pollutant Information")
         pollutants_details = {
             'pm25': 'PM2.5 (Fine Particulate Matter)',
             'pm10': 'PM10 (Respirable Particulate Matter)',
