@@ -15,6 +15,22 @@ def get_air_quality_data(city):
         st.error("Unable to fetch data for the selected city.")
         return None
 
+# Mapping for pollutants and environmental parameters
+pollutant_descriptions = {
+    'pm25': 'PM2.5 (Fine Particulate Matter)',
+    'pm10': 'PM10 (Respirable Particulate Matter)',
+    'no2': 'NO2 (Nitrogen Dioxide)',
+    'so2': 'SO2 (Sulfur Dioxide)',
+    'o3': 'O3 (Ozone)',
+    'co': 'CO (Carbon Monoxide)',
+    't': 'Temperature',
+    'h': 'Humidity',
+    'p': 'Pressure',
+    'w': 'Wind Speed',
+    'wg': 'Wind Gust',
+    'dew': 'Dew Point'
+}
+
 # Streamlit app
 st.set_page_config(page_title="Air Quality Tracker", page_icon=":earth_asia:", layout="wide")
 
@@ -41,6 +57,10 @@ if city:
         pollutants = data['iaqi']
         pollutants_df = pd.DataFrame(pollutants).T
         pollutants_df.columns = ['Concentration']
+        
+        # Map pollutant keys to their descriptions
+        pollutants_df.index = pollutants_df.index.map(pollutant_descriptions).fillna(pollutants_df.index)
+        
         st.dataframe(pollutants_df)
 
         fig = px.bar(
@@ -54,17 +74,9 @@ if city:
         st.plotly_chart(fig)
 
         st.markdown("### Detailed Pollutant Information")
-        pollutants_details = {
-            'pm25': 'PM2.5 (Fine Particulate Matter)',
-            'pm10': 'PM10 (Respirable Particulate Matter)',
-            'no2': 'NO2 (Nitrogen Dioxide)',
-            'so2': 'SO2 (Sulfur Dioxide)',
-            'o3': 'O3 (Ozone)',
-            'co': 'CO (Carbon Monoxide)'
-        }
         pollutant_expander = st.expander("Click to see detailed pollutant information")
         with pollutant_expander:
-            for pollutant, description in pollutants_details.items():
+            for pollutant, description in pollutant_descriptions.items():
                 if pollutant in pollutants:
                     st.write(f"{description}: {pollutants[pollutant]['v']}")
 
