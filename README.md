@@ -30,9 +30,9 @@ Launch the app by running the appropriate Streamlit command.
 Use the sidebar to select a city from the dropdown menu.
 The main section of the app will display the AQI, a data table of current pollutants, a bar chart visualization, and detailed pollutant information.
 API Key
-The app uses the World Air Quality Index Project's API to fetch real-time data. You will need an API token to access the data. Obtain the token from the World Air Quality Index Project website.
+The app uses the World Air Quality Index Project's API to fetch real-time data.
 
-Replace the placeholder token in the code with your actual API token to enable data fetching.
+
 
 License
 This project is licensed under the MIT License.
